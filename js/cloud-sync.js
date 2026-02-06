@@ -49,7 +49,10 @@ var CloudSync = (function() {
       doc.deviceId = getDeviceId();
       doc.syncedAt = new Date().toISOString();
 
-      db.collection(COLLECTION).doc(data.inspectionId).set(doc, { merge: true })
+      db.collection(COLLECTION).doc(data.inspectionId).set(doc)
+        .then(function() {
+          console.log('CloudSync: pushed', data.inspectionId);
+        })
         .catch(function(e) {
           console.warn('CloudSync: push failed', e.message);
         });
@@ -63,6 +66,9 @@ var CloudSync = (function() {
     if (!inspectionId) return;
 
     db.collection(COLLECTION).doc(inspectionId).delete()
+      .then(function() {
+        console.log('CloudSync: deleted', inspectionId);
+      })
       .catch(function(e) {
         console.warn('CloudSync: delete failed', e.message);
       });
@@ -73,44 +79,56 @@ var CloudSync = (function() {
     if (unsubscribe) unsubscribe();
 
     unsubscribe = db.collection(COLLECTION)
-      .orderBy('lastModified', 'desc')
       .onSnapshot(function(snapshot) {
+        console.log('CloudSync: snapshot received,', snapshot.size, 'docs');
         var cloudInspections = [];
         snapshot.forEach(function(doc) {
           cloudInspections.push(doc.data());
         });
         mergeFromCloud(cloudInspections);
       }, function(err) {
-        console.warn('CloudSync: listener error', err.message);
+        console.error('CloudSync: listener error', err);
       });
   }
 
   function mergeFromCloud(cloudInspections) {
-    if (!cloudInspections || cloudInspections.length === 0) return;
-
     try {
       var localHistoryRaw = localStorage.getItem('ccr_inspection_history');
       var localHistory = localHistoryRaw ? JSON.parse(localHistoryRaw) : [];
-      var localMap = {};
       var changed = false;
 
+      // Build map of local inspections by ID
+      var localMap = {};
       for (var i = 0; i < localHistory.length; i++) {
         if (localHistory[i].inspectionId) {
           localMap[localHistory[i].inspectionId] = i;
         }
       }
 
+      // Build set of cloud IDs for delete detection
+      var cloudIds = {};
+      for (var k = 0; k < cloudInspections.length; k++) {
+        if (cloudInspections[k].inspectionId) {
+          cloudIds[cloudInspections[k].inspectionId] = true;
+        }
+      }
+
+      // Add or update from cloud
       for (var j = 0; j < cloudInspections.length; j++) {
         var cloud = cloudInspections[j];
         if (!cloud.inspectionId) continue;
-        if (cloud.status === 'in_progress') continue;
+        // Only sync completed inspections to other devices' history
+        if (cloud.status !== 'completed') continue;
 
         var localIdx = localMap[cloud.inspectionId];
 
         if (localIdx === undefined) {
+          // New inspection from cloud — add to local
           localHistory.push(cloud);
+          localMap[cloud.inspectionId] = localHistory.length - 1;
           changed = true;
         } else {
+          // Exists locally — update if cloud is newer
           var local = localHistory[localIdx];
           var cloudTime = cloud.lastModified || cloud.syncedAt || '';
           var localTime = local.lastModified || '';
@@ -121,27 +139,24 @@ var CloudSync = (function() {
         }
       }
 
-      var cloudIds = {};
-      for (var k = 0; k < cloudInspections.length; k++) {
-        if (cloudInspections[k].inspectionId) {
-          cloudIds[cloudInspections[k].inspectionId] = true;
-        }
-      }
-      var filtered = [];
+      // Remove local items that were deleted from cloud
+      // Only remove if the item was previously synced (has syncedAt)
+      var newHistory = [];
       for (var m = 0; m < localHistory.length; m++) {
         var item = localHistory[m];
-        if (!item.syncedAt && !cloudIds[item.inspectionId]) {
-          filtered.push(item);
-        } else if (cloudIds[item.inspectionId]) {
-          filtered.push(item);
+        var wasFromCloud = item.syncedAt || item.deviceId;
+        var stillInCloud = cloudIds[item.inspectionId];
+        if (wasFromCloud && !stillInCloud) {
+          // Was synced but no longer in cloud — deleted remotely
+          changed = true;
+        } else {
+          newHistory.push(item);
         }
       }
-      if (filtered.length !== localHistory.length) {
-        localHistory = filtered;
-        changed = true;
-      }
+      localHistory = newHistory;
 
       if (changed) {
+        // Sort newest first
         localHistory.sort(function(a, b) {
           var aTime = a.completedAt || a.lastModified || '';
           var bTime = b.completedAt || b.lastModified || '';
@@ -153,10 +168,11 @@ var CloudSync = (function() {
         }
 
         localStorage.setItem('ccr_inspection_history', JSON.stringify(localHistory));
+        console.log('CloudSync: merged', localHistory.length, 'inspections to local');
         document.dispatchEvent(new CustomEvent('cloud-sync-updated'));
       }
     } catch (e) {
-      console.warn('CloudSync: merge error', e);
+      console.error('CloudSync: merge error', e);
     }
   }
 

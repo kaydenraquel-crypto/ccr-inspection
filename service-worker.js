@@ -1,4 +1,4 @@
-var CACHE_VERSION = 'ccr-inspect-v2';
+var CACHE_VERSION = 'ccr-inspect-v3';
 
 // Resolve base path from service worker location
 // Works for both root deployment and subdirectory (e.g. /ccr-inspection/)
