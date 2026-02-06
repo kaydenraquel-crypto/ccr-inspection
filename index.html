@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#17494F">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CCR Inspect">
+  <meta name="description" content="Dynamic Commercial Equipment Inspection App - Colorado Commercial Repairs LLC">
+  <title>CCR Equipment Inspection</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="Logo.png">
+  <link rel="icon" type="image/png" href="Logo.png">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- ===== Sticky Header ===== -->
+  <header class="app-header">
+    <div class="app-header__left">
+      <button class="btn btn--icon btn-back" id="btn-back" type="button" aria-label="Back">&#8592;</button>
+      <span class="app-header__title">CCR Inspection</span>
+    </div>
+    <div class="app-header__right">
+      <span class="save-status" id="save-status"></span>
+    </div>
+  </header>
+
+  <!-- ===== Landing Screen ===== -->
+  <main class="screen screen--active" id="screen-landing">
+
+    <div class="landing__logo-wrapper">
+      <img class="landing__logo" src="Logo.png" alt="Colorado Commercial Repairs LLC">
+    </div>
+    <div class="landing__company-name">Colorado Commercial Repairs</div>
+    <div class="landing__tagline">Equipment Inspection Tool</div>
+
+    <!-- Resume Banner -->
+    <div class="resume-banner" id="resume-banner">
+      <div class="resume-banner__title">Inspection In Progress</div>
+      <div class="resume-banner__info" id="resume-info"></div>
+      <div class="resume-banner__actions">
+        <button class="btn btn--accent" id="btn-resume" type="button">Resume</button>
+        <button class="btn btn--secondary" id="btn-discard" type="button" style="color:#fff;border-color:rgba(255,255,255,0.5);">Discard</button>
+      </div>
+    </div>
+
+    <div class="landing__section-title">Select Equipment Type</div>
+    <div class="equipment-grid" id="equipment-grid"></div>
+
+    <button class="btn btn--secondary btn--block btn--lg" id="btn-history" type="button">&#128203; View Inspection History</button>
+  </main>
+
+  <!-- ===== Form Screen ===== -->
+  <div class="screen" id="screen-form">
+    <div class="form-screen__title" id="form-title"></div>
+
+    <div id="customer-info-container"></div>
+    <div id="form-sections-container"></div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <button class="btn btn--primary" id="btn-save" type="button">&#128190; Save</button>
+      <button class="btn btn--success" id="btn-generate-pdf" type="button">&#128196; Generate PDF</button>
+    </div>
+
+    <!-- Post-PDF Actions (shown after generating PDF) -->
+    <div class="post-pdf-actions" id="post-pdf-actions">
+      <div class="post-pdf-actions__title">Inspection Complete?</div>
+      <div class="post-pdf-actions__buttons">
+        <button class="btn btn--accent btn--block" id="btn-archive" type="button">&#9989; Archive &amp; Finish</button>
+        <button class="btn btn--primary btn--block" id="btn-email-report" type="button">&#9993; Email Report</button>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn--danger" id="btn-clear" type="button">&#128465; Clear Inspection</button>
+    </div>
+  </div>
+
+  <!-- ===== History Screen ===== -->
+  <div class="screen" id="screen-history">
+    <div class="history__header">
+      <div class="history__title">Inspection History</div>
+    </div>
+    <div class="history__search">
+      <input class="form-input" type="search" id="history-search" placeholder="Search by customer, equipment, technician...">
+    </div>
+    <div id="history-list-container"></div>
+  </div>
+
+  <!-- ===== History Detail Screen ===== -->
+  <div class="screen" id="screen-history-detail">
+    <div id="history-detail-container"></div>
+  </div>
+
+  <!-- ===== Toast Notification ===== -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ===== Confirmation Modal ===== -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal__title" id="modal-title"></div>
+      <div class="modal__message" id="modal-message"></div>
+      <div class="modal__actions">
+        <button class="btn btn--secondary" id="modal-cancel" type="button">Cancel</button>
+        <button class="btn btn--danger" id="modal-confirm" type="button">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Signature Modal ===== -->
+  <div class="modal-overlay" id="signature-modal">
+    <div class="modal modal--signature">
+      <div class="modal__title" id="sig-modal-title">Signature</div>
+      <div class="signature-canvas-wrapper">
+        <canvas class="signature-canvas" id="signature-canvas"></canvas>
+      </div>
+      <div class="signature-modal__actions">
+        <button class="btn btn--secondary" id="sig-cancel" type="button">Cancel</button>
+        <button class="btn btn--danger" id="sig-clear" type="button">Clear</button>
+        <button class="btn btn--success" id="sig-done" type="button">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Scripts (dependency order) ===== -->
+  <!-- jsPDF libraries -->
+  <script src="lib/jspdf.umd.min.js"></script>
+  <script src="lib/jspdf.plugin.autotable.min.js"></script>
+
+  <script src="js/equipment-types.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/form-renderer.js"></script>
+  <script src="js/logo-data.js"></script>
+  <script src="js/pdf-generator.js"></script>
+  <script src="js/signature-pad.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js');
+    }
+  </script>
+</body>
+</html>
