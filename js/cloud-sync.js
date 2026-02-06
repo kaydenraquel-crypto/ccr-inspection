@@ -48,7 +48,7 @@ var CloudSync = (function() {
       var count = 0;
       for (var i = 0; i < history.length; i++) {
         var item = history[i];
-        if (item.inspectionId && item.status === 'completed' && !item.syncedAt) {
+        if (item.inspectionId && item.status === 'completed') {
           pushInspection(item);
           count++;
         }

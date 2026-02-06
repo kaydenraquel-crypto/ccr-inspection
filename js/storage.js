@@ -97,6 +97,16 @@ var InspectionStorage = (function() {
 
   function archiveInspection(data) {
     try {
+      // Ensure inspectionId from current draft carries over
+      if (!data.inspectionId) {
+        var current = loadInspection();
+        if (current && current.inspectionId) {
+          data.inspectionId = current.inspectionId;
+        } else {
+          data.inspectionId = generateId();
+        }
+      }
+      data.lastModified = new Date().toISOString();
       var history = getInspectionList();
       data.status = 'completed';
       data.completedAt = new Date().toISOString();
