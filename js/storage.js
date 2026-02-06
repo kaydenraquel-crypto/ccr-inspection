@@ -30,6 +30,9 @@ var InspectionStorage = (function() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       hasUnsavedChanges = false;
       lastSaveTime = new Date();
+      if (typeof CloudSync !== 'undefined') {
+        CloudSync.pushInspection(data);
+      }
       return true;
     } catch (e) {
       if (e.name === 'QuotaExceededError' || e.code === 22) {
@@ -104,6 +107,9 @@ var InspectionStorage = (function() {
       }
       localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
       clearInspection();
+      if (typeof CloudSync !== 'undefined') {
+        CloudSync.pushInspection(data);
+      }
       return true;
     } catch (e) {
       console.error('Archive failed:', e);

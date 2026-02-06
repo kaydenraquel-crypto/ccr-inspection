@@ -22,6 +22,15 @@ var App = (function() {
     checkForResume();
     InspectionStorage.setupBeforeUnload();
     updateSaveStatus();
+
+    if (typeof CloudSync !== 'undefined') {
+      CloudSync.init();
+      document.addEventListener('cloud-sync-updated', function() {
+        if (state.currentScreen === 'history') {
+          renderHistoryList();
+        }
+      });
+    }
   }
 
   function cacheElements() {
@@ -653,10 +662,14 @@ var App = (function() {
     showModal('Delete Inspection?', 'This will permanently delete this inspection from history.', function() {
       var list = InspectionStorage.getInspectionList();
       if (state.historyViewIndex >= 0 && state.historyViewIndex < list.length) {
+        var deleted = list[state.historyViewIndex];
         list.splice(state.historyViewIndex, 1);
         try {
           localStorage.setItem('ccr_inspection_history', JSON.stringify(list));
         } catch (e) {}
+        if (typeof CloudSync !== 'undefined' && deleted && deleted.inspectionId) {
+          CloudSync.deleteInspection(deleted.inspectionId);
+        }
         navigateToHistory();
         showToast('Inspection deleted', 'success');
       }

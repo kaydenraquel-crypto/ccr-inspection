@@ -1,4 +1,4 @@
-var CACHE_VERSION = 'ccr-inspect-v1';
+var CACHE_VERSION = 'ccr-inspect-v2';
 
 // Resolve base path from service worker location
 // Works for both root deployment and subdirectory (e.g. /ccr-inspection/)
@@ -9,6 +9,8 @@ var CACHE_FILES = [
   'css/main.css',
   'js/equipment-types.js',
   'js/storage.js',
+  'js/firebase-config.js',
+  'js/cloud-sync.js',
   'js/form-renderer.js',
   'js/logo-data.js',
   'js/pdf-generator.js',
