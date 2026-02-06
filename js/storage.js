@@ -25,7 +25,14 @@ var InspectionStorage = (function() {
     try {
       data.lastModified = new Date().toISOString();
       if (!data.inspectionId) {
-        data.inspectionId = generateId();
+        // Preserve ID from existing draft before generating a new one
+        var existing = loadInspection();
+        if (existing && existing.inspectionId) {
+          data.inspectionId = existing.inspectionId;
+          data.timestamp = existing.timestamp || data.timestamp;
+        } else {
+          data.inspectionId = generateId();
+        }
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       hasUnsavedChanges = false;

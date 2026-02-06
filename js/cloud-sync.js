@@ -33,11 +33,38 @@ var CloudSync = (function() {
 
       db = firebase.firestore();
       initialized = true;
+      cleanupOrphanedDrafts();
       pushLocalHistory();
       startListening();
       console.log('CloudSync: initialized');
     } catch (e) {
       console.error('CloudSync: init failed', e);
+    }
+  }
+
+  function cleanupOrphanedDrafts() {
+    if (!localStorage.getItem('ccr_drafts_cleaned')) {
+      db.collection(COLLECTION).get().then(function(snapshot) {
+        var batch = db.batch();
+        var count = 0;
+        snapshot.forEach(function(doc) {
+          var data = doc.data();
+          if (data.status === 'in_progress') {
+            batch.delete(doc.ref);
+            count++;
+          }
+        });
+        if (count > 0) {
+          batch.commit().then(function() {
+            console.log('CloudSync: cleaned up', count, 'orphaned drafts');
+            localStorage.setItem('ccr_drafts_cleaned', '1');
+          });
+        } else {
+          localStorage.setItem('ccr_drafts_cleaned', '1');
+        }
+      }).catch(function(e) {
+        console.warn('CloudSync: cleanup error', e);
+      });
     }
   }
 
