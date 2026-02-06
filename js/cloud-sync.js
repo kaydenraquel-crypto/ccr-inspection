@@ -33,10 +33,31 @@ var CloudSync = (function() {
 
       db = firebase.firestore();
       initialized = true;
+      pushLocalHistory();
       startListening();
       console.log('CloudSync: initialized');
     } catch (e) {
       console.error('CloudSync: init failed', e);
+    }
+  }
+
+  function pushLocalHistory() {
+    try {
+      var historyRaw = localStorage.getItem('ccr_inspection_history');
+      var history = historyRaw ? JSON.parse(historyRaw) : [];
+      var count = 0;
+      for (var i = 0; i < history.length; i++) {
+        var item = history[i];
+        if (item.inspectionId && item.status === 'completed' && !item.syncedAt) {
+          pushInspection(item);
+          count++;
+        }
+      }
+      if (count > 0) {
+        console.log('CloudSync: uploading', count, 'existing archived inspections');
+      }
+    } catch (e) {
+      console.warn('CloudSync: pushLocalHistory error', e);
     }
   }
 
@@ -112,6 +133,14 @@ var CloudSync = (function() {
           cloudIds[cloudInspections[k].inspectionId] = true;
         }
       }
+
+      // Log status breakdown for debugging
+      var statusCounts = {};
+      for (var s = 0; s < cloudInspections.length; s++) {
+        var st = cloudInspections[s].status || 'unknown';
+        statusCounts[st] = (statusCounts[st] || 0) + 1;
+      }
+      console.log('CloudSync: doc statuses:', JSON.stringify(statusCounts));
 
       // Add or update from cloud
       for (var j = 0; j < cloudInspections.length; j++) {
