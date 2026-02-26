@@ -173,7 +173,7 @@ var PDFGenerator = (function() {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(12);
       doc.setTextColor(COLORS.primary[0], COLORS.primary[1], COLORS.primary[2]);
-      doc.text((equipmentConfig ? equipmentConfig.icon + ' ' : '') + equipmentName, PAGE_MARGIN + 4, y + 7);
+      doc.text(equipmentName, PAGE_MARGIN + 4, y + 7);
       y += 16;
 
       // Job info table
