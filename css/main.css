@@ -1435,3 +1435,159 @@ select.form-input {
 .customer-info__title {
   font-size: 1.05rem;
 }
+
+/* ============================================
+   Feature 5 — Unit Switcher
+   ============================================ */
+.unit-switcher {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--color-accent);
+}
+
+.unit-tab {
+  padding: 8px 18px;
+  border-radius: var(--radius);
+  border: 2px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+  min-height: var(--tap-min);
+}
+
+.unit-tab:hover {
+  border-color: var(--color-primary);
+  background: var(--color-bg-white);
+}
+
+.unit-tab--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent-dark);
+  color: var(--color-primary);
+}
+
+/* ============================================
+   Feature 6 — Job / Assessment Screen
+   ============================================ */
+.job-header {
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--color-accent);
+}
+
+.job-header__title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.job-header__meta {
+  font-size: var(--font-size-base);
+  color: var(--color-text-light);
+}
+
+.job-section-title {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 16px 0 10px;
+}
+
+.job-equipment-card {
+  background: var(--color-bg-white);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: box-shadow var(--transition);
+  border-left: 4px solid var(--color-primary);
+}
+
+.job-equipment-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.job-equipment-card__info {
+  flex: 1;
+}
+
+.job-equipment-card__label {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.job-equipment-card__type {
+  font-size: var(--font-size-base);
+  color: var(--color-text-light);
+}
+
+.job-equipment-card__condition {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  background: var(--color-bg);
+}
+
+.job-equipment-card__condition--good  { color: var(--color-success); }
+.job-equipment-card__condition--fair  { color: var(--color-warning); }
+.job-equipment-card__condition--poor  { color: var(--color-error); }
+
+.job-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--color-text-light);
+  font-size: var(--font-size-md);
+}
+
+/* Job form overlay — type selector modal */
+.job-type-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.job-type-selector .equipment-card {
+  min-height: 60px;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+/* History job badge */
+.history-card--job {
+  border-left-color: var(--color-accent);
+}
+
+.history-card__job-badge {
+  display: inline-block;
+  background: var(--color-accent);
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  border-radius: var(--radius);
+  padding: 1px 7px;
+  margin-left: 6px;
+}

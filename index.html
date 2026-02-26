@@ -46,22 +46,50 @@
       </div>
     </div>
 
-    <div class="landing__section-title">Select Equipment Type</div>
+    <div class="action-bar" style="margin-bottom:0;">
+      <button class="btn btn--accent btn--block btn--lg" id="btn-new-job" type="button">&#128203; New Property Assessment Job</button>
+    </div>
+
+    <div class="landing__section-title">Single Equipment Inspection</div>
     <div class="equipment-grid" id="equipment-grid"></div>
 
     <button class="btn btn--secondary btn--block btn--lg" id="btn-history" type="button">&#128203; View Inspection History</button>
   </main>
+
+  <!-- ===== Job / Assessment Screen ===== -->
+  <div class="screen" id="screen-job">
+    <div class="job-header" id="job-header-info">
+      <div class="job-header__title" id="job-header-title">Property Assessment</div>
+      <div class="job-header__meta" id="job-header-meta"></div>
+    </div>
+
+    <div class="job-section-title">Equipment Items</div>
+    <div id="job-equipment-list"></div>
+
+    <div class="action-bar">
+      <button class="btn btn--primary" id="btn-job-save" type="button">&#128190; Save Job</button>
+      <button class="btn btn--accent" id="btn-job-add-equipment" type="button">&#10010; Add Equipment</button>
+    </div>
+    <div class="action-bar">
+      <button class="btn btn--success btn--block" id="btn-job-generate-pdf" type="button">&#128196; Generate Assessment Report</button>
+    </div>
+    <div class="action-bar">
+      <button class="btn btn--danger" id="btn-job-discard" type="button">&#128465; Discard Job</button>
+    </div>
+  </div>
 
   <!-- ===== Form Screen ===== -->
   <div class="screen" id="screen-form">
     <div class="form-screen__title" id="form-title"></div>
 
     <div id="customer-info-container"></div>
+    <div id="unit-switcher-container"></div>
     <div id="form-sections-container"></div>
 
     <!-- Action Bar -->
     <div class="action-bar">
       <button class="btn btn--primary" id="btn-save" type="button">&#128190; Save</button>
+      <button class="btn btn--accent" id="btn-duplicate-unit" type="button">&#10010; Duplicate Unit</button>
       <button class="btn btn--success" id="btn-generate-pdf" type="button">&#128196; Generate PDF</button>
     </div>
 

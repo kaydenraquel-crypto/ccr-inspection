@@ -195,6 +195,79 @@ var InspectionStorage = (function() {
     });
   }
 
+  // --- Job Storage (Feature 6) ---
+
+  var JOB_CURRENT_KEY = 'ccr_current_job';
+  var JOB_HISTORY_KEY = 'ccr_job_history';
+
+  function saveJob(job) {
+    try {
+      job.lastModified = new Date().toISOString();
+      if (!job.jobId) job.jobId = generateId();
+      localStorage.setItem(JOB_CURRENT_KEY, JSON.stringify(job));
+      return true;
+    } catch(e) {
+      console.error('Job save failed:', e);
+      return false;
+    }
+  }
+
+  function loadJob() {
+    try {
+      var data = localStorage.getItem(JOB_CURRENT_KEY);
+      return data ? JSON.parse(data) : null;
+    } catch(e) {
+      return null;
+    }
+  }
+
+  function hasInProgressJob() {
+    try {
+      var data = localStorage.getItem(JOB_CURRENT_KEY);
+      if (!data) return false;
+      var parsed = JSON.parse(data);
+      return parsed && parsed.status === 'in_progress';
+    } catch(e) {
+      return false;
+    }
+  }
+
+  function clearJob() {
+    try {
+      localStorage.removeItem(JOB_CURRENT_KEY);
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  function archiveJob(job) {
+    try {
+      if (!job.jobId) job.jobId = generateId();
+      job.status = 'completed';
+      job.completedAt = new Date().toISOString();
+      job.lastModified = job.completedAt;
+      var history = getJobList();
+      history.unshift(job);
+      if (history.length > 50) history = history.slice(0, 50);
+      localStorage.setItem(JOB_HISTORY_KEY, JSON.stringify(history));
+      clearJob();
+      return true;
+    } catch(e) {
+      console.error('Job archive failed:', e);
+      return false;
+    }
+  }
+
+  function getJobList() {
+    try {
+      var data = localStorage.getItem(JOB_HISTORY_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch(e) {
+      return [];
+    }
+  }
+
   return {
     generateId: generateId,
     saveInspection: saveInspection,
@@ -210,6 +283,12 @@ var InspectionStorage = (function() {
     getTimeSinceLastSave: getTimeSinceLastSave,
     startAutoSave: startAutoSave,
     stopAutoSave: stopAutoSave,
-    setupBeforeUnload: setupBeforeUnload
+    setupBeforeUnload: setupBeforeUnload,
+    saveJob: saveJob,
+    loadJob: loadJob,
+    hasInProgressJob: hasInProgressJob,
+    clearJob: clearJob,
+    archiveJob: archiveJob,
+    getJobList: getJobList
   };
 })();
