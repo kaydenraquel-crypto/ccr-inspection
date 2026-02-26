@@ -361,9 +361,52 @@ var PDFGenerator = (function() {
             var extraRows = [];
             for (var k = 0; k < sectionConfig.extraFields.length; k++) {
               var field = sectionConfig.extraFields[k];
+              if (field.id === 'repair_cost_estimate') {
+                var costJson = sectionData.extraFields['repair_cost_estimate'];
+                var costTotal = sectionData.extraFields['repair_cost_total'];
+                if (costJson) {
+                  try {
+                    var lineItems = JSON.parse(costJson);
+                    if (lineItems && lineItems.length > 0) {
+                      y = checkNewPage(doc, y, pageHeight, 30);
+                      var costTableBody = lineItems.map(function(item) {
+                        var laborCost = (item.labor || 0) * 125;
+                        var rowTotal = (item.parts || 0) + laborCost;
+                        return [
+                          item.description || '',
+                          '$' + (item.parts || 0).toFixed(2),
+                          (item.labor || 0) + ' hrs',
+                          '$' + rowTotal.toFixed(2)
+                        ];
+                      });
+                      var totalRow = ['', '', 'TOTAL', '$' + (parseFloat(costTotal) || 0).toFixed(2)];
+                      doc.autoTable({
+                        startY: y,
+                        head: [['Description', 'Parts', 'Labor', 'Total']],
+                        body: costTableBody,
+                        foot: [totalRow],
+                        margin: { left: PAGE_MARGIN, right: PAGE_MARGIN },
+                        theme: 'grid',
+                        headStyles: { fillColor: COLORS.primary, textColor: COLORS.white, fontSize: 8, fontStyle: 'bold' },
+                        bodyStyles: { fontSize: 8, textColor: COLORS.text, cellPadding: 2 },
+                        footStyles: { fillColor: COLORS.lightGray, textColor: COLORS.error, fontSize: 9, fontStyle: 'bold' },
+                        columnStyles: {
+                          0: { cellWidth: contentWidth - 60 },
+                          1: { cellWidth: 20, halign: 'right' },
+                          2: { cellWidth: 20, halign: 'right' },
+                          3: { cellWidth: 20, halign: 'right' }
+                        }
+                      });
+                      y = doc.lastAutoTable.finalY + 2;
+                    }
+                  } catch(e) {}
+                }
+                continue;
+              }
+              if (field.id === 'repair_cost_total') continue;
               var value = sectionData.extraFields[field.id];
-              if (value && value.trim()) {
-                extraRows.push([field.label, value, field.id === 'repair_cost_estimate']);
+              if (value !== undefined && value !== null && String(value).trim()) {
+                extraRows.push([field.label, String(value), false]);
               }
             }
             if (extraRows.length > 0) {
@@ -374,15 +417,7 @@ var PDFGenerator = (function() {
                 margin: { left: PAGE_MARGIN, right: PAGE_MARGIN },
                 theme: 'grid',
                 bodyStyles: { fontSize: 8.5, textColor: COLORS.text, cellPadding: 2 },
-                columnStyles: { 0: { cellWidth: 55, fontStyle: 'bold', fillColor: COLORS.lightGray } },
-                didParseCell: function(hookData) {
-                  // Color repair cost rows
-                  var rowData = extraRows[hookData.row.index];
-                  if (rowData && rowData[2] && hookData.column.index === 1) {
-                    hookData.cell.styles.textColor = COLORS.error;
-                    hookData.cell.styles.fontStyle = 'bold';
-                  }
-                }
+                columnStyles: { 0: { cellWidth: 55, fontStyle: 'bold', fillColor: COLORS.lightGray } }
               });
               y = doc.lastAutoTable.finalY + 2;
             }
@@ -411,12 +446,31 @@ var PDFGenerator = (function() {
 
             for (var ph = 0; ph < sectionData.photos.length; ph++) {
               var colIndex = ph % photosPerRow;
-              if (colIndex === 0 && ph > 0) y += photoHeight + photoGap;
-              if (colIndex === 0 && y > pageHeight - photoHeight - 20) { doc.addPage(); y = PAGE_MARGIN; }
+
+              // Before starting a new row, check if there's room
+              if (colIndex === 0) {
+                if (y + photoHeight + 10 > pageHeight - 15) {
+                  doc.addPage();
+                  y = PAGE_MARGIN;
+                }
+              }
+
               var photoX = PAGE_MARGIN + colIndex * (photoWidth + photoGap);
               try { doc.addImage(sectionData.photos[ph].dataUrl, 'JPEG', photoX, y, photoWidth, photoHeight); } catch(e) {}
+
+              // Print caption below photo if present
+              if (sectionData.photos[ph].caption) {
+                doc.setFont('helvetica', 'italic');
+                doc.setFontSize(7);
+                doc.setTextColor(100, 100, 100);
+                doc.text(sectionData.photos[ph].caption, photoX, y + photoHeight + 3, { maxWidth: photoWidth });
+              }
+
+              // After completing a row, advance y
+              if (colIndex === photosPerRow - 1 || ph === sectionData.photos.length - 1) {
+                y += photoHeight + (sectionData.photos[ph].caption ? 8 : photoGap);
+              }
             }
-            y += photoHeight + photoGap;
           }
 
           y += 4;

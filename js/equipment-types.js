@@ -5189,3 +5189,478 @@ EQUIPMENT_TYPES.make_up_air_unit = {
     }
   ]
 };
+
+
+// ============================================
+// Additional Equipment Types (appended)
+// ============================================
+
+EQUIPMENT_TYPES.commercial_dishwasher = {
+  name: "Commercial Dishwasher",
+  icon: "\uD83C\uDF7D\uFE0F",
+  sections: [
+    {
+      id: "temperatures",
+      title: "Wash & Rinse Temperatures",
+      type: "checklist",
+      items: [
+        { id: "wash_temp_ok", label: "Wash temp meets minimum (150F chemical / 160F high-temp)" },
+        { id: "rinse_temp_ok", label: "Final rinse temp adequate (180F high-temp or chemical sanitizer present)" },
+        { id: "temp_gauges_present", label: "Temperature gauges present and readable" },
+        { id: "temp_stable", label: "Temperatures stable throughout cycle" }
+      ],
+      extraFields: [
+        { id: "wash_temp_reading", type: "text", label: "Wash Temp Reading (F)" },
+        { id: "rinse_temp_reading", type: "text", label: "Final Rinse Temp Reading (F)" }
+      ],
+      notesField: true
+    },
+    {
+      id: "chemical_sanitizer",
+      title: "Chemical Sanitizer System",
+      type: "checklist",
+      items: [
+        { id: "sanitizer_present", label: "Sanitizer chemical supply present and connected" },
+        { id: "sanitizer_dispensing", label: "Sanitizer dispensing correctly (test strip verified)" },
+        { id: "chemical_levels_ok", label: "Chemical levels within spec (chlorine 50-99 ppm or per manufacturer)" },
+        { id: "na_high_temp", label: "N/A - High-temp sanitizing unit (no chemical required)" }
+      ],
+      extraFields: [
+        { id: "sanitizer_ppm", type: "text", label: "Sanitizer Concentration (ppm)" }
+      ],
+      notesField: true
+    },
+    {
+      id: "door_and_gaskets",
+      title: "Door, Gaskets & Curtains",
+      type: "checklist",
+      items: [
+        { id: "door_closes_seal", label: "Door closes and latches securely" },
+        { id: "door_gasket_intact", label: "Door gasket intact, pliable, no tears" },
+        { id: "curtains_present", label: "Curtains/splash guards present and in good condition" },
+        { id: "door_no_leaks", label: "No leakage around door during cycle" }
+      ],
+      notesField: true
+    },
+    {
+      id: "wash_arms",
+      title: "Wash Arms & Spray Nozzles",
+      type: "checklist",
+      items: [
+        { id: "arms_rotate_free", label: "Wash arms rotate freely without obstruction" },
+        { id: "nozzles_clear", label: "Spray nozzles clear, not clogged or damaged" },
+        { id: "upper_arm_ok", label: "Upper wash arm functional" },
+        { id: "lower_arm_ok", label: "Lower wash arm functional" },
+        { id: "rinse_arm_ok", label: "Rinse arm/header functional" }
+      ],
+      notesField: true
+    },
+    {
+      id: "water_and_drain",
+      title: "Water Supply, Pressure & Drain",
+      type: "checklist",
+      items: [
+        { id: "fill_pressure_ok", label: "Fill water pressure adequate" },
+        { id: "drain_clears", label: "Drain clears completely after cycle" },
+        { id: "drain_no_backup", label: "No drain backup or overflow observed" },
+        { id: "scrap_screen_clean", label: "Scrap screen / filter basket clean and present" },
+        { id: "no_standing_water", label: "No standing water remaining in sump after drain" }
+      ],
+      extraFields: [
+        { id: "fill_pressure_psi", type: "text", label: "Fill Pressure (PSI)" }
+      ],
+      notesField: true
+    },
+    {
+      id: "alarms_and_safeties",
+      title: "Alarms, Safeties & Controls",
+      type: "checklist",
+      items: [
+        { id: "high_temp_alarm", label: "High-temp alarm functional (if equipped)" },
+        { id: "door_interlock", label: "Door interlock stops cycle when opened" },
+        { id: "cycle_timer_ok", label: "Cycle timer/selector operating correctly" },
+        { id: "no_error_codes", label: "No active error codes or fault lights" }
+      ],
+      notesField: true
+    },
+    {
+      id: "recommended_actions",
+      title: "Recommended Actions",
+      type: "checklist",
+      items: [
+        { id: "action_none", label: "No action needed - all items pass" },
+        { id: "action_descale", label: "Descaling / lime removal needed" },
+        { id: "action_nozzles", label: "Nozzle cleaning or replacement needed" },
+        { id: "action_gasket", label: "Door gasket replacement needed" },
+        { id: "action_arm", label: "Wash arm replacement needed" },
+        { id: "action_chemical", label: "Chemical sanitizer system service needed" },
+        { id: "action_drain", label: "Drain system service needed" },
+        { id: "action_other", label: "Other (see notes)" }
+      ],
+      extraFields: [
+        {
+          id: "priority",
+          type: "radio",
+          label: "Priority Level",
+          options: ["Low", "Medium", "High", "Critical"]
+        },
+        { id: "repair_cost_estimate", type: "text", label: "Estimated Repair Cost ($)" }
+      ],
+      notesField: true
+    }
+  ]
+};
+
+EQUIPMENT_TYPES.combi_oven = {
+  name: "Combi Oven",
+  icon: "\uD83C\uDF73",
+  sections: [
+    {
+      id: "operating_modes",
+      title: "Operating Modes",
+      type: "checklist",
+      items: [
+        { id: "steam_mode_ok", label: "Steam mode functions correctly" },
+        { id: "convection_mode_ok", label: "Convection mode functions correctly" },
+        { id: "combination_mode_ok", label: "Combination (steam + convection) mode functions correctly" },
+        { id: "mode_transitions", label: "Mode transitions without faults or errors" }
+      ],
+      notesField: true
+    },
+    {
+      id: "temp_accuracy",
+      title: "Temperature Accuracy",
+      type: "checklist",
+      items: [
+        { id: "temp_reaches_setpoint", label: "Oven reaches programmed setpoint temperature" },
+        { id: "temp_consistent", label: "Temperature consistent throughout cooking chamber" },
+        { id: "probe_functional", label: "Core temperature probe functional (if equipped)" },
+        { id: "display_accurate", label: "Display temperature matches chamber temperature" }
+      ],
+      extraFields: [
+        { id: "setpoint_temp", type: "text", label: "Test Setpoint (F)" },
+        { id: "measured_temp", type: "text", label: "Measured Chamber Temp (F)" }
+      ],
+      notesField: true
+    },
+    {
+      id: "door_and_seals",
+      title: "Door & Seals",
+      type: "checklist",
+      items: [
+        { id: "door_closes_seal", label: "Door closes fully and seals against gasket" },
+        { id: "door_gasket_intact", label: "Door gasket intact, pliable, not cracked" },
+        { id: "door_latch_ok", label: "Door latch secure, no play" },
+        { id: "no_steam_leak", label: "No steam leakage around door during operation" },
+        { id: "door_glass_intact", label: "Door glass intact (no cracks or fogging)" }
+      ],
+      notesField: true
+    },
+    {
+      id: "boiler_steam_system",
+      title: "Boiler / Steam System",
+      type: "checklist",
+      items: [
+        { id: "boiler_heats", label: "Boiler heats to operating pressure without issues (boiler models)" },
+        { id: "no_lime_buildup", label: "No excessive lime/scale buildup in boiler or steam generator" },
+        { id: "descale_indicator", label: "Descale indicator / alert not active" },
+        { id: "injection_ok", label: "Steam injection system operating (injector models)" },
+        { id: "na_injector", label: "N/A - Injection-style (no boiler)" }
+      ],
+      notesField: true
+    },
+    {
+      id: "drain_condensate",
+      title: "Drain & Condensate",
+      type: "checklist",
+      items: [
+        { id: "drain_flows", label: "Drain flows freely during and after cycle" },
+        { id: "condensate_no_backup", label: "No condensate backup in oven chamber" },
+        { id: "drain_cool_device", label: "Drain cool-down device functional (if equipped)" },
+        { id: "floor_drain_clear", label: "Floor drain below unit clear and functional" }
+      ],
+      notesField: true
+    },
+    {
+      id: "self_clean",
+      title: "Self-Clean Cycle",
+      type: "checklist",
+      items: [
+        { id: "clean_cycle_runs", label: "Self-clean cycle initiates and completes without fault" },
+        { id: "detergent_rinse_ok", label: "Detergent and rinse agent dispensing correctly" },
+        { id: "clean_result_ok", label: "Chamber clean after cycle completes" },
+        { id: "na_no_clean", label: "N/A - No self-clean feature" }
+      ],
+      notesField: true
+    },
+    {
+      id: "controls_and_alarms",
+      title: "Controls & Alarms",
+      type: "checklist",
+      items: [
+        { id: "controls_responsive", label: "Control panel / touchscreen responsive" },
+        { id: "no_error_codes", label: "No active error codes or fault lights" },
+        { id: "programs_retain", label: "Programmed recipes/settings retained in memory" },
+        { id: "fan_runs", label: "Convection fan(s) running smoothly" }
+      ],
+      notesField: true
+    },
+    {
+      id: "recommended_actions",
+      title: "Recommended Actions",
+      type: "checklist",
+      items: [
+        { id: "action_none", label: "No action needed - all items pass" },
+        { id: "action_descale", label: "Descaling / boiler flush needed" },
+        { id: "action_gasket", label: "Door gasket replacement needed" },
+        { id: "action_drain", label: "Drain system service needed" },
+        { id: "action_probe", label: "Temperature probe calibration/replacement needed" },
+        { id: "action_controls", label: "Controls service needed" },
+        { id: "action_other", label: "Other (see notes)" }
+      ],
+      extraFields: [
+        {
+          id: "priority",
+          type: "radio",
+          label: "Priority Level",
+          options: ["Low", "Medium", "High", "Critical"]
+        },
+        { id: "repair_cost_estimate", type: "text", label: "Estimated Repair Cost ($)" }
+      ],
+      notesField: true
+    }
+  ]
+};
+
+EQUIPMENT_TYPES.electrical_panel = {
+  name: "Electrical Panel",
+  icon: "\u26A1",
+  sections: [
+    {
+      id: "accessibility",
+      title: "Panel Accessibility & Clearance",
+      type: "checklist",
+      items: [
+        { id: "clearance_36in", label: "36-inch clearance maintained in front of panel (NEC 110.26)" },
+        { id: "panel_accessible", label: "Panel door opens fully without obstruction" },
+        { id: "panel_labeled", label: "Panel clearly labeled (location/building identifier)" },
+        { id: "no_stored_items", label: "No items stored blocking panel access" }
+      ],
+      notesField: true
+    },
+    {
+      id: "breaker_condition",
+      title: "Breaker Labeling & Condition",
+      type: "checklist",
+      items: [
+        { id: "breakers_labeled", label: "All breakers legibly labeled / directory filled out" },
+        { id: "no_double_taps", label: "No double-tapped breakers (two conductors on single-pole not rated for it)" },
+        { id: "breakers_trip_ok", label: "No breakers in tripped position at time of inspection" },
+        { id: "no_blanks_missing", label: "No open knockouts / blank spaces without cover" },
+        { id: "breaker_sizes_ok", label: "Breaker amperage appears appropriate for circuit wire gauge (visual)" }
+      ],
+      notesField: true
+    },
+    {
+      id: "heat_damage",
+      title: "Heat Damage & Arcing Signs",
+      type: "checklist",
+      items: [
+        { id: "no_scorch_marks", label: "No scorch marks or discoloration on breakers or bus bar" },
+        { id: "no_burn_smell", label: "No burning smell observed at panel" },
+        { id: "no_melted_wire", label: "No melted wire insulation visible" },
+        { id: "no_rust_corrosion", label: "No significant rust or corrosion inside panel" }
+      ],
+      notesField: true
+    },
+    {
+      id: "wiring_condition",
+      title: "Wiring & Grounding",
+      type: "checklist",
+      items: [
+        { id: "ground_neutral_sep", label: "Ground and neutral properly separated (sub-panel) or bonded (main)" },
+        { id: "ground_bus_intact", label: "Ground bus bar intact and connections tight" },
+        { id: "neutral_bus_intact", label: "Neutral bus bar intact, no loose or overloaded connections" },
+        { id: "no_exposed_conductors", label: "No exposed conductors inside panel without proper termination" },
+        { id: "wires_neat", label: "Wiring organized, no excessive bundling across breaker faces" }
+      ],
+      notesField: true
+    },
+    {
+      id: "afci_gfci",
+      title: "AFCI / GFCI Presence",
+      type: "checklist",
+      items: [
+        { id: "gfci_wet_locations", label: "GFCI protection present for wet/damp locations (kitchen, bath, exterior)" },
+        { id: "afci_bedrooms", label: "AFCI protection present for bedroom circuits (where required by local code)" },
+        { id: "gfci_test_ok", label: "GFCI breakers test/reset correctly" },
+        { id: "na_older_panel", label: "N/A - Pre-AFCI/GFCI code era panel, recommend upgrade evaluation" }
+      ],
+      notesField: true
+    },
+    {
+      id: "panel_general",
+      title: "General Panel Condition",
+      type: "checklist",
+      items: [
+        { id: "cover_fits", label: "Panel cover/door fits properly and closes securely" },
+        { id: "main_breaker_labeled", label: "Main disconnect breaker present and labeled" },
+        { id: "panel_capacity_ok", label: "Panel does not appear fully loaded / capacity available" },
+        { id: "manufacturer_legible", label: "Panel manufacturer and rating data legible" }
+      ],
+      notesField: true
+    },
+    {
+      id: "recommended_actions",
+      title: "Recommended Actions",
+      type: "checklist",
+      items: [
+        { id: "action_none", label: "No action needed - visual inspection passed" },
+        { id: "action_label", label: "Breaker labeling / directory completion needed" },
+        { id: "action_double_tap", label: "Double-tap remediation needed (licensed electrician)" },
+        { id: "action_gfci", label: "GFCI protection upgrade needed" },
+        { id: "action_afci", label: "AFCI protection upgrade needed" },
+        { id: "action_heat_damage", label: "Heat damage investigation by licensed electrician required" },
+        { id: "action_full_eval", label: "Full electrical evaluation by licensed electrician recommended" },
+        { id: "action_other", label: "Other (see notes)" }
+      ],
+      extraFields: [
+        {
+          id: "priority",
+          type: "radio",
+          label: "Priority Level",
+          options: ["Low", "Medium", "High", "Critical"]
+        },
+        { id: "repair_cost_estimate", type: "text", label: "Estimated Repair Cost ($)" }
+      ],
+      notesField: true
+    }
+  ]
+};
+
+EQUIPMENT_TYPES.plumbing_walkthrough = {
+  name: "Plumbing Walkthrough",
+  icon: "\uD83D\uDEBF",
+  sections: [
+    {
+      id: "supply_lines",
+      title: "Visible Supply Lines",
+      type: "checklist",
+      items: [
+        { id: "supply_no_leaks", label: "No visible leaks on supply lines" },
+        { id: "supply_corrosion_ok", label: "No significant corrosion on supply fittings or pipes" },
+        { id: "supply_insulated", label: "Hot water supply lines insulated (where applicable)" },
+        { id: "supply_pressure_ok", label: "Water pressure adequate at fixtures (no noticeable drop)" }
+      ],
+      extraFields: [
+        { id: "water_pressure_psi", type: "text", label: "Water Pressure at Fixture (PSI)" }
+      ],
+      notesField: true
+    },
+    {
+      id: "shutoff_valves",
+      title: "Shutoff Valve Condition",
+      type: "checklist",
+      items: [
+        { id: "main_shutoff_present", label: "Main water shutoff valve present and accessible" },
+        { id: "main_shutoff_operable", label: "Main shutoff valve operable (not seized)" },
+        { id: "fixture_shutoffs_ok", label: "Fixture/zone shutoff valves present and operable" },
+        { id: "shutoff_no_leaks", label: "No leaks at shutoff valve packing or seats" }
+      ],
+      notesField: true
+    },
+    {
+      id: "drain_waste",
+      title: "Drain / Waste / Vent Condition",
+      type: "checklist",
+      items: [
+        { id: "drains_flow", label: "Drains flow freely, no slow drains observed" },
+        { id: "no_active_leaks", label: "No active leaks at drain connections or P-traps" },
+        { id: "p_traps_present", label: "P-traps present at all fixtures" },
+        { id: "vent_no_blockage", label: "Vent system appears functional (no gurgling suggesting blockage)" },
+        { id: "no_sewage_smell", label: "No sewage or sewer gas odor detected" }
+      ],
+      notesField: true
+    },
+    {
+      id: "grease_trap",
+      title: "Grease Trap",
+      type: "checklist",
+      items: [
+        { id: "grease_trap_present", label: "Grease trap present (where required)" },
+        { id: "grease_trap_accessible", label: "Grease trap lid accessible for service" },
+        { id: "grease_trap_serviced", label: "Evidence of recent service / pumping (service record or low grease level)" },
+        { id: "no_overflow", label: "No overflow or backup signs" },
+        { id: "na_no_trap", label: "N/A - No grease trap on this system" }
+      ],
+      notesField: true
+    },
+    {
+      id: "water_heater",
+      title: "Hot Water Heater Condition",
+      type: "checklist",
+      items: [
+        { id: "hwh_no_leaks", label: "No leaks around base or connections" },
+        { id: "hwh_tprv_present", label: "T&P relief valve present and discharge pipe installed" },
+        { id: "hwh_hot_water_ok", label: "Hot water supply adequate and at correct temperature" },
+        { id: "hwh_venting_ok", label: "Venting / exhaust properly connected (gas units)" },
+        { id: "hwh_no_rust", label: "No significant rust or corrosion on tank exterior" }
+      ],
+      extraFields: [
+        { id: "hwh_temp_reading", type: "text", label: "Hot Water Temp at Fixture (F)" },
+        { id: "hwh_approx_age", type: "text", label: "Approx. Water Heater Age / Year" }
+      ],
+      notesField: true
+    },
+    {
+      id: "backflow_preventers",
+      title: "Backflow Preventers",
+      type: "checklist",
+      items: [
+        { id: "backflow_present", label: "Backflow preventer(s) present where required" },
+        { id: "backflow_no_leaks", label: "No leaks at backflow preventer" },
+        { id: "backflow_tested", label: "Annual test certification current (if required by jurisdiction)" },
+        { id: "na_no_backflow", label: "N/A - No backflow preventer required / not observed" }
+      ],
+      notesField: true
+    },
+    {
+      id: "active_leaks",
+      title: "Active Leaks & Water Damage",
+      type: "checklist",
+      items: [
+        { id: "no_active_leaks_found", label: "No active leaks found during walkthrough" },
+        { id: "no_water_stain_walls", label: "No water staining on walls or ceilings suggesting past leaks" },
+        { id: "no_mold_signs", label: "No visible mold or mildew signs in plumbing areas" },
+        { id: "subfloor_ok", label: "Subfloor around fixtures appears solid (no soft spots)" }
+      ],
+      notesField: true
+    },
+    {
+      id: "recommended_actions",
+      title: "Recommended Actions",
+      type: "checklist",
+      items: [
+        { id: "action_none", label: "No action needed - all items pass" },
+        { id: "action_repair_leak", label: "Active leak repair needed" },
+        { id: "action_shutoff", label: "Shutoff valve replacement/repair needed" },
+        { id: "action_hwh", label: "Water heater service or replacement needed" },
+        { id: "action_grease_trap", label: "Grease trap pumping / service needed" },
+        { id: "action_backflow", label: "Backflow preventer service/testing needed" },
+        { id: "action_drain", label: "Drain cleaning / rooter service needed" },
+        { id: "action_plumber", label: "Licensed plumber evaluation recommended" },
+        { id: "action_other", label: "Other (see notes)" }
+      ],
+      extraFields: [
+        {
+          id: "priority",
+          type: "radio",
+          label: "Priority Level",
+          options: ["Low", "Medium", "High", "Critical"]
+        },
+        { id: "repair_cost_estimate", type: "text", label: "Estimated Repair Cost ($)" }
+      ],
+      notesField: true
+    }
+  ]
+};

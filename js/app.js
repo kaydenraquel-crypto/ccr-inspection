@@ -179,6 +179,50 @@ var App = (function() {
       }
     });
 
+    // Photo caption update
+    document.addEventListener('change', function(e) {
+      if (e.target.matches('.photo-caption-input')) {
+        var photoId = e.target.getAttribute('data-photo-id');
+        var sectionId = e.target.getAttribute('data-photo-section');
+        FormRenderer.updatePhotoCaption(sectionId, photoId, e.target.value);
+      }
+    });
+
+    // Add cost row
+    document.addEventListener('click', function(e) {
+      var addBtn = e.target.closest('[data-add-cost-row]');
+      if (addBtn) {
+        var sectionId = addBtn.getAttribute('data-add-cost-row');
+        FormRenderer.addCostRow(sectionId);
+      }
+    });
+
+    // Delete cost row
+    document.addEventListener('click', function(e) {
+      var delBtn = e.target.closest('[data-delete-cost-row]');
+      if (delBtn) {
+        var rowId = delBtn.getAttribute('data-delete-cost-row');
+        var sectionId = delBtn.getAttribute('data-cost-section');
+        var row = document.getElementById(rowId);
+        if (row) row.parentNode.removeChild(row);
+        FormRenderer.recalcCostTotal(sectionId);
+      }
+    });
+
+    // Recalc cost totals on input
+    document.addEventListener('input', function(e) {
+      if (e.target.matches('.cost-parts') || e.target.matches('.cost-labor-hrs')) {
+        var row = e.target.closest('.cost-row');
+        if (row) {
+          var container = row.parentNode;
+          if (container) {
+            var sectionId = container.id.replace('cost-rows-', '');
+            FormRenderer.recalcCostTotal(sectionId);
+          }
+        }
+      }
+    });
+
     // Signature pad click (open modal)
     document.addEventListener('click', function(e) {
       var pad = e.target.closest('.signature-block__pad');

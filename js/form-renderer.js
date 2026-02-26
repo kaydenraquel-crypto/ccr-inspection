@@ -35,7 +35,7 @@ var FormRenderer = (function() {
           '<div class="form-group">' +
             '<label class="form-label" for="ci-report-type">Report Type</label>' +
             '<select class="form-input" id="ci-report-type" name="reportType">' +
-              '<option value="pre_purchase">Pre-Purchase Equipment Assessment</option>' +
+              '<option value="pre_purchase" selected>Pre-Purchase Equipment Assessment</option>' +
               '<option value="inspection">Equipment Inspection Report</option>' +
               '<option value="service">Service Report</option>' +
               '<option value="maintenance">Preventive Maintenance Report</option>' +
@@ -83,7 +83,7 @@ var FormRenderer = (function() {
         '<div class="form-row">' +
           '<div class="form-group">' +
             '<label class="form-label form-label--required" for="ci-technician">Technician</label>' +
-            '<input class="form-input" type="text" id="ci-technician" name="technician" autocomplete="name" placeholder="e.g. Kris">' +
+            '<input class="form-input" type="text" id="ci-technician" name="technician" autocomplete="name" placeholder="e.g. Kris" value="Kris">' +
           '</div>' +
           '<div class="form-group">' +
             '<label class="form-label" for="ci-email">Customer Email</label>' +
@@ -196,6 +196,8 @@ var FormRenderer = (function() {
     return html;
   }
 
+  var LABOR_RATE = 125;
+
   function renderExtraField(sectionId, field) {
     var html = '';
     var fieldId = 'extra-' + sectionId + '-' + field.id;
@@ -216,21 +218,102 @@ var FormRenderer = (function() {
           '</div>';
       }
       html += '</div></div>';
-    } else if (field.type === 'text') {
-      // Use currency styling for cost estimate fields
-      var isCost = field.id === 'repair_cost_estimate';
+    } else if (field.type === 'text' && field.id === 'repair_cost_estimate') {
       html +=
-        '<div class="form-group' + (isCost ? ' form-group--cost' : '') + '">' +
-          '<label class="form-label' + (isCost ? ' form-label--cost' : '') + '" for="' + fieldId + '">' +
-            (isCost ? '💲 ' : '') + escapeHtml(field.label) +
-          '</label>' +
-          '<input class="form-input' + (isCost ? ' form-input--cost' : '') + '" type="text" id="' + fieldId + '" ' +
+        '<div class="cost-line-items" data-section="' + sectionId + '" data-extra="repair_cost_estimate">' +
+          '<div class="cost-line-items__header">\uD83D\uDCB2 Repair Cost Estimate</div>' +
+          '<div class="cost-rows" id="cost-rows-' + sectionId + '"></div>' +
+          '<button type="button" class="btn btn--small" data-add-cost-row="' + sectionId + '">+ Add Item</button>' +
+          '<div class="cost-total">Total: <span id="cost-total-' + sectionId + '">$0.00</span></div>' +
+        '</div>';
+    } else if (field.type === 'text') {
+      html +=
+        '<div class="form-group">' +
+          '<label class="form-label" for="' + fieldId + '">' + escapeHtml(field.label) + '</label>' +
+          '<input class="form-input" type="text" id="' + fieldId + '" ' +
           'data-section="' + sectionId + '" data-extra="' + field.id + '" ' +
-          'placeholder="' + (isCost ? 'e.g. $450 – $650' : 'Enter ' + escapeHtml(field.label.toLowerCase())) + '">' +
+          'placeholder="Enter ' + escapeHtml(field.label.toLowerCase()) + '">' +
         '</div>';
     }
 
     return html;
+  }
+
+  function renderCostRow(sectionId) {
+    var rowId = 'cost-row-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+    return '<div class="cost-row" id="' + rowId + '">' +
+      '<input type="text" placeholder="Description" class="cost-desc">' +
+      '<input type="number" placeholder="Parts $" class="cost-parts" min="0" step="0.01">' +
+      '<input type="number" placeholder="Labor hrs" class="cost-labor-hrs" min="0" step="0.25">' +
+      '<span class="cost-labor-rate">x $' + LABOR_RATE + '/hr =</span>' +
+      '<span class="cost-row-total">$0.00</span>' +
+      '<button type="button" class="cost-row-delete" data-delete-cost-row="' + rowId + '" data-cost-section="' + sectionId + '">&times;</button>' +
+    '</div>';
+  }
+
+  function addCostRow(sectionId) {
+    var container = document.getElementById('cost-rows-' + sectionId);
+    if (!container) return;
+    var div = document.createElement('div');
+    div.innerHTML = renderCostRow(sectionId);
+    container.appendChild(div.firstChild);
+    recalcCostTotal(sectionId);
+  }
+
+  function recalcCostTotal(sectionId) {
+    var container = document.getElementById('cost-rows-' + sectionId);
+    var totalEl = document.getElementById('cost-total-' + sectionId);
+    if (!container || !totalEl) return;
+    var rows = container.querySelectorAll('.cost-row');
+    var total = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var parts = parseFloat(rows[i].querySelector('.cost-parts').value) || 0;
+      var laborHrs = parseFloat(rows[i].querySelector('.cost-labor-hrs').value) || 0;
+      var rowTotal = parts + (laborHrs * LABOR_RATE);
+      rows[i].querySelector('.cost-row-total').textContent = '$' + rowTotal.toFixed(2);
+      total += rowTotal;
+    }
+    totalEl.textContent = '$' + total.toFixed(2);
+    InspectionStorage.markUnsaved();
+  }
+
+  function collectCostLineItems(sectionId) {
+    var container = document.getElementById('cost-rows-' + sectionId);
+    if (!container) return { items: [], total: 0 };
+    var rows = container.querySelectorAll('.cost-row');
+    var items = [];
+    var total = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var desc = rows[i].querySelector('.cost-desc').value.trim();
+      var parts = parseFloat(rows[i].querySelector('.cost-parts').value) || 0;
+      var laborHrs = parseFloat(rows[i].querySelector('.cost-labor-hrs').value) || 0;
+      if (desc || parts || laborHrs) {
+        items.push({ description: desc, parts: parts, labor: laborHrs });
+        total += parts + (laborHrs * LABOR_RATE);
+      }
+    }
+    return { items: items, total: total };
+  }
+
+  function populateCostLineItems(sectionId, jsonStr, totalAmount) {
+    var container = document.getElementById('cost-rows-' + sectionId);
+    if (!container) return;
+    try {
+      var items = JSON.parse(jsonStr);
+      for (var i = 0; i < items.length; i++) {
+        var div = document.createElement('div');
+        div.innerHTML = renderCostRow(sectionId);
+        var row = div.firstChild;
+        row.querySelector('.cost-desc').value = items[i].description || '';
+        row.querySelector('.cost-parts').value = items[i].parts || '';
+        row.querySelector('.cost-labor-hrs').value = items[i].labor || '';
+        var rowTotal = (items[i].parts || 0) + ((items[i].labor || 0) * LABOR_RATE);
+        row.querySelector('.cost-row-total').textContent = '$' + rowTotal.toFixed(2);
+        container.appendChild(row);
+      }
+      var totalEl = document.getElementById('cost-total-' + sectionId);
+      if (totalEl && totalAmount !== undefined) totalEl.textContent = '$' + parseFloat(totalAmount).toFixed(2);
+    } catch(e) {}
   }
 
   function renderSignatureSection() {
@@ -257,7 +340,7 @@ var FormRenderer = (function() {
 
   function addPhotoToSection(sectionId, dataUrl) {
     if (!sectionPhotos[sectionId]) sectionPhotos[sectionId] = [];
-    var photo = { id: generatePhotoId(), dataUrl: dataUrl };
+    var photo = { id: generatePhotoId(), dataUrl: dataUrl, caption: '' };
     sectionPhotos[sectionId].push(photo);
     renderPhotoGrid(sectionId);
     InspectionStorage.markUnsaved();
@@ -271,6 +354,17 @@ var FormRenderer = (function() {
     InspectionStorage.markUnsaved();
   }
 
+  function updatePhotoCaption(sectionId, photoId, caption) {
+    if (!sectionPhotos[sectionId]) return;
+    for (var i = 0; i < sectionPhotos[sectionId].length; i++) {
+      if (sectionPhotos[sectionId][i].id === photoId) {
+        sectionPhotos[sectionId][i].caption = caption;
+        InspectionStorage.markUnsaved();
+        break;
+      }
+    }
+  }
+
   function renderPhotoGrid(sectionId) {
     var grid = document.getElementById('photo-grid-' + sectionId);
     if (!grid) return;
@@ -281,6 +375,9 @@ var FormRenderer = (function() {
       html +=
         '<div class="photo-thumb">' +
           '<img src="' + photos[i].dataUrl + '" alt="Photo ' + (i + 1) + '">' +
+          '<input type="text" class="photo-caption-input" placeholder="Caption (optional)" ' +
+          'data-photo-id="' + photos[i].id + '" data-photo-section="' + sectionId + '" ' +
+          'value="' + escapeHtml(photos[i].caption || '') + '">' +
           '<button type="button" class="photo-thumb__delete" data-delete-photo="' + photos[i].id + '" ' +
           'data-photo-section="' + sectionId + '">&times;</button>' +
         '</div>';
@@ -387,9 +484,20 @@ var FormRenderer = (function() {
         var extraId = el.getAttribute('data-extra');
         if (el.type === 'radio') {
           if (el.checked) sectionData.extraFields[extraId] = el.value;
+        } else if (el.classList && el.classList.contains('cost-line-items')) {
+          // handled below
         } else {
           sectionData.extraFields[extraId] = el.value;
         }
+      }
+
+      // Collect cost line items if present
+      var costContainer = sectionEl.querySelector('.cost-line-items');
+      if (costContainer) {
+        var costSectionId = costContainer.getAttribute('data-section');
+        var costData = collectCostLineItems(costSectionId);
+        sectionData.extraFields['repair_cost_estimate'] = JSON.stringify(costData.items);
+        sectionData.extraFields['repair_cost_total'] = costData.total;
       }
 
       var notesEl = sectionEl.querySelector('[data-field="notes"]');
@@ -439,7 +547,12 @@ var FormRenderer = (function() {
           for (var e = 0; e < extraKeys.length; e++) {
             var extraId = extraKeys[e];
             var value = sectionData.extraFields[extraId];
-            if (!value) continue;
+            if (value === undefined || value === null || value === '') continue;
+            if (extraId === 'repair_cost_estimate') {
+              populateCostLineItems(sectionId, value, sectionData.extraFields['repair_cost_total']);
+              continue;
+            }
+            if (extraId === 'repair_cost_total') continue;
             var radio = sectionEl.querySelector('input[type="radio"][data-extra="' + extraId + '"][value="' + value + '"]');
             if (radio) { radio.checked = true; continue; }
             var textInput = sectionEl.querySelector('input[type="text"][data-extra="' + extraId + '"]');
@@ -496,7 +609,10 @@ var FormRenderer = (function() {
     resetState: resetState,
     addPhotoToSection: addPhotoToSection,
     removePhotoFromSection: removePhotoFromSection,
+    updatePhotoCaption: updatePhotoCaption,
     compressImage: compressImage,
+    addCostRow: addCostRow,
+    recalcCostTotal: recalcCostTotal,
     setSignatureData: setSignatureData,
     clearSignatureData: clearSignatureData
   };
