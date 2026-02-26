@@ -9,6 +9,7 @@ var App = (function() {
     currentScreen: 'landing',
     currentEquipmentType: null,
     historyViewIndex: -1,
+    historyViewType: 'inspection',
     units: [],
     activeUnitIndex: 0,
     currentJob: null,
@@ -178,7 +179,7 @@ var App = (function() {
       }
 
       // General change tracking
-      if (state.currentScreen === 'form') {
+      if (state.currentScreen === 'form' || state.currentScreen === 'form-in-job') {
         InspectionStorage.markUnsaved();
         updateSaveStatus();
       }
@@ -324,7 +325,8 @@ var App = (function() {
 
     // Input tracking
     document.addEventListener('input', function(e) {
-      if (state.currentScreen === 'form' && (e.target.matches('.form-input') || e.target.matches('.form-textarea'))) {
+      if ((state.currentScreen === 'form' || state.currentScreen === 'form-in-job') &&
+          (e.target.matches('.form-input') || e.target.matches('.form-textarea'))) {
         InspectionStorage.markUnsaved();
         updateSaveStatus();
       }
@@ -332,10 +334,15 @@ var App = (function() {
 
     // Save on blur
     document.addEventListener('focusout', function(e) {
-      if (state.currentScreen === 'form' && InspectionStorage.getHasUnsavedChanges()) {
-        var data = buildSaveData();
-        InspectionStorage.saveInspection(data);
-        updateSaveStatus();
+      if (InspectionStorage.getHasUnsavedChanges()) {
+        if (state.currentScreen === 'form') {
+          var data = buildSaveData();
+          InspectionStorage.saveInspection(data);
+          updateSaveStatus();
+        } else if (state.currentScreen === 'form-in-job') {
+          saveJobEquipmentData();
+          updateSaveStatus();
+        }
       }
     });
 
@@ -346,7 +353,7 @@ var App = (function() {
     });
 
     setInterval(function() {
-      if (state.currentScreen === 'form') updateSaveStatus();
+      if (state.currentScreen === 'form' || state.currentScreen === 'form-in-job') updateSaveStatus();
     }, 15000);
 
     // Modal cancel
@@ -776,14 +783,9 @@ var App = (function() {
       });
     }
 
-    // Hide confirm/cancel — user picks from grid
+    // Hide confirm/cancel — user picks from the grid; hideModal() will restore them
     elements.modalConfirm.style.display = 'none';
     elements.modalCancel.style.display = 'none';
-    elements.modalCancel.addEventListener('click', function restoreButtons() {
-      elements.modalConfirm.style.display = '';
-      elements.modalCancel.style.display = '';
-      elements.modalCancel.removeEventListener('click', restoreButtons);
-    }, { once: true });
   }
 
   function addEquipmentToJob(equipmentType) {
@@ -1337,6 +1339,9 @@ var App = (function() {
   }
 
   function showModal(title, message, onConfirm) {
+    // Always restore button visibility in case equipment selector hid them
+    elements.modalConfirm.style.display = '';
+    elements.modalCancel.style.display = '';
     elements.modalTitle.textContent = title;
     elements.modalMessage.textContent = message;
     elements.modalOverlay.classList.add('modal-overlay--visible');
@@ -1353,6 +1358,9 @@ var App = (function() {
 
   function hideModal() {
     elements.modalOverlay.classList.remove('modal-overlay--visible');
+    // Restore button visibility in case equipment selector hid them
+    elements.modalConfirm.style.display = '';
+    elements.modalCancel.style.display = '';
   }
 
   function formatDate(date) {
